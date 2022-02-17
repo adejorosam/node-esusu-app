@@ -1,6 +1,8 @@
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const ErrorResponse = require('../utils/error');
+const groupUser = require("../models").group_users;
+
 
 
 function authMiddleware(req, res, next) {
@@ -21,4 +23,18 @@ function authMiddleware(req, res, next) {
   }
 }
 
-module.exports = authMiddleware ;
+async function adminMiddleware (req, res, next)  {
+  try{
+      const groupCollection = await groupUser.findOne({where:{groupId:req.params.groupId, userId:req.user.id, role:"admin"}})
+      // console.log(groupCollection)
+      if (groupCollection === null) {
+          return next(new ErrorResponse(`You do not have the right perform this action`, 401));
+      }
+      return next();
+  }
+  catch(error){
+      return next(new ErrorResponse(error.message, 500));
+  }
+}
+
+module.exports = {authMiddleware, adminMiddleware} ;

@@ -1,5 +1,7 @@
 //group.js
 const group = require("../models").Group;
+const user = require("../models").User;
+
 const db = require('../config/db');
 const invite = require("../models").Invite;
 const groupUser = require("../models").group_users;
@@ -166,13 +168,13 @@ module.exports = {
     async inviteToGroup(req, res, next) {
         try {
             //validate request
-            const result = await inviteSchema.validateAsync(req.body)
+            // const result = await inviteSchema.validateAsync(req.body)
 
             
             //check if group exists
-            const groupCollection = await Group.findByPk(req.body.groupId)
+            const groupCollection = await group.findByPk(req.params.groupId)
             if(groupCollection === null){
-                return next(new ErrorResponse(`Group with the id of ${req.body.groupId} does not exist`, 404));
+                return next(new ErrorResponse(`Group with the id of ${req.params.groupId} does not exist`, 404));
             }
             //check if user exists
             const userCollection = await user.findByPk(req.body.userId)
@@ -181,30 +183,29 @@ module.exports = {
             }
 
             //check if user has been previously invited
-            const inviteCollection = await invite.findOne({where:{userId:req.body.userId, groupId:req.body.groupId}})
+            const inviteCollection = await invite.findOne({where:{userId:req.body.userId, groupId:req.params.groupId}})
             if(inviteCollection != null){
-                return next(new ErrorResponse(`This user has been previously previted`, 400));
+                return next(new ErrorResponse(`This user has been previously invited`, 400));
             }
             //check if user has joined before
-            const checkGroup = await groupUser.findOne({where: {userId:req.user.id, groupId:req.body.groupId }})
-            if(checkGroup === null){
-                return next(new ErrorResponse(`User with the id of ${req.user.id} already joined before now`, 404));
+            const checkGroup = await groupUser.findOne({where: {userId:req.body.userId, groupId:req.params.groupId }})
+            if(checkGroup != null){
+                return next(new ErrorResponse(`User with the id of ${req.body.userId} already joined before now`, 404));
             }
             //check if group hasn't exceeded its max cap
             if (groupCollection.length === groupCollection.maximumCapacity ) {
                 return SuccessResponse(res, "Group has reached its maximum capacity and you can't invite anyone", null,  200)
             }
-
+            let inviteId = Math.floor(Math.random() * 100) + 1
             const inviteUser = await invite.create({
                 userId:req.body.userId,
                 invitedBy: req.user.id,
-                groupId:req.body.groupId,
-                inviteId: Math.floor(Math.random() * 100) + 1,
-
+                groupId:req.params.groupId,
+                inviteId: inviteId
             })
 
             if(inviteUser){
-                const inviteLink = `${process.env.BASE_URL}/api/v1/group/join/${inviteId}?userId=${userId}`;
+                const inviteLink = `${process.env.BASE_URL}/api/v1/group/join/${inviteId}?userId=${req.body.userId}`;
                 return SuccessResponse(res, "User has been to successfully invited", inviteLink,  201)
 
             }

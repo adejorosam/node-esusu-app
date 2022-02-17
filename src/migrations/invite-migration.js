@@ -34,7 +34,11 @@ module.exports = {
             type: Sequelize.BOOLEAN,
             defaultValue:false
           },
-    
+          groupId:{
+            allowNull: false,
+            type: Sequelize.INTEGER,
+            // defaultValue:false
+          },
           createdAt: {
             allowNull: false,
             type: Sequelize.DATE,
