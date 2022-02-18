@@ -27,6 +27,43 @@ module.exports = {
         return next(new ErrorResponse(e.message, 500));
         }
   },
+
+     // @desc    Get a list of members in a group and amount saved
+    // @route   POST /api/v1/groups/groupId
+    // @access  Private
+    async groupReporting(req, res, next) {
+      try {
+   
+        
+      const groupCollection = await group.findOne({
+         where:{
+             id:req.params.groupId
+         },  
+    
+          include: [{
+              model:user, 
+              attributes: ['id', 'name'],  
+              through: { where: { role: "admin", userId:req.user.id } },
+             
+              // through: {attributes: ["amountSaved", "role"]}
+          }],
+    
+      });
+          if(groupCollection === null){
+            return next(new ErrorResponse(`group with the id of ${req.params.groupId} does not exist`, 404));
+  
+          }
+          else{
+            return SuccessResponse(res, "group retrieved successfully", groupCollection,  200)
+  
+      } 
+      } 
+      catch (e) {
+          console.log(e)
+          return next(new ErrorResponse(e.message, 500));
+  
+      }
+    },
     // @desc    Get a group
     // @route   POST /api/v1/groups/groupId
     // @access  Private

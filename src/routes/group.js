@@ -14,18 +14,21 @@ const {
   joinGroup,
   deleteGroup,
   updateGroup,
-  inviteToGroup
+  inviteToGroup,
+  groupReporting
 } = groupController;
 
 
 // Group routes
 
 router.get("/groups",authMiddleware,getAllGroups)
-router.get("/groups/:groupId", getAGroup)
+router.get("/groups/:groupId",[authMiddleware], getAGroup)
 router.post("/groups/:groupId", authMiddleware, joinGroup)
 router.post("/groups", [authMiddleware], createGroup)
 router.delete("/groups/:groupId",[authMiddleware,adminMiddleware], deleteGroup)
 router.patch("/groups/:groupId",[authMiddleware,adminMiddleware], updateGroup)
 router.post("/groups/:groupId/user", [authMiddleware, adminMiddleware], inviteToGroup)
+router.get("/groups/:groupId/user", [authMiddleware, adminMiddleware], groupReporting)
+
 
 module.exports = router
