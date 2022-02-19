@@ -2,7 +2,7 @@
   "name": "node-esusu-app",
   "version": "1.0.0",
   "description": "An esusu app",
-  "main": "./src/server.js",
+  "main": "server.js",
   "scripts": {
     "start": "nodemon server"
   },

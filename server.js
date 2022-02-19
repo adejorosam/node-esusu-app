@@ -4,8 +4,8 @@ const dotenv = require('dotenv')
 const cors = require('cors');
 const morgan = require('morgan')
 const colors = require('colour')
-const db = require('./config/db')
-const errorHandlerMiddleware = require('./middleware/errorHandlerMiddleware')
+const db = require('./src/config/db')
+const errorHandlerMiddleware = require('./src/middleware/errorHandlerMiddleware')
 
 
 // Load env vars
@@ -19,8 +19,8 @@ db.authenticate()
 
 
 // Route files
-const authRoutes = require("./routes/user")
-const groupRoutes = require("./routes/group")
+const authRoutes = require("./src/routes/user")
+const groupRoutes = require("./src/routes/group")
 
 const app = express();
 
