@@ -43,7 +43,7 @@ module.exports = {
           include: [{
               model:user, 
               attributes: ['id', 'name'],  
-              through: { where: { role: "admin", userId:req.user.id } },
+              through: { attributes:["amountSaved", "role"],where: { role: "admin", userId:req.user.id } },
              
               // through: {attributes: ["amountSaved", "role"]}
           }],
