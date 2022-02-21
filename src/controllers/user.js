@@ -1,64 +1,39 @@
 //user.js
-const User = require("../models").User;
-const bcrypt = require("bcryptjs");
-const {authSchema} = require("../validators/auth")
-const securePassword = require('../utils/securePassword');
-const getSignedToken = require('../utils/getSignedToken');
 const SuccessResponse = require("../utils/success")
 const ErrorResponse = require("../utils/error")
+const {
+  login,
+  createUser,
+  getAllUsers
+} = require("../services/user");
 
 module.exports = {
-
-    
     async login(req, res, next){
         try{
-            const result = await authSchema.validateAsync(req.body)
-            const user = await User.findOne({ where:{email: req.body.email}});
-            if(!user){
-                return next(new ErrorResponse("An account for this email does not exist", 404));
- 
-            }
-            const validPass = await bcrypt.compare(req.body.password, user.password);
-            if(!validPass){
-                return next(new ErrorResponse("E-mail or password is wrong", 400));
-            }
-            const token = await getSignedToken(user);
-            return SuccessResponse(res, "Login successfull", token,  200)
- 
+            const loginUser = await login(req)
+            return SuccessResponse(res, "Login successfull", loginUser,  200)
           }catch(e){
             return next(new ErrorResponse(e.message, 500));
-
           }
     },
     
   async getAllUsers(req, res, next) {
     try {
-      const userCollection = await User.find({})
+      const userCollection = await getAllUsers()
+      // return userCollection
       return SuccessResponse(res, "Users retrieved successfully", userCollection,  200)
     } catch (e) {
-      console.log(e)
+      // console.log(e)
       return next(new ErrorResponse(e.message, 500));
     }
   },
   
   async createUser(req, res, next) {
     try {
- 
-      const userExists = await User.findOne({ where:{email: req.body.email}});
-      if(userExists != null){
-            return next( new ErrorResponse("E-mail already exists",  400))
-        }
-        const userCollection = await User.create({
-            email: req.body.email,
-            name: req.body.name,
-            password: await securePassword(req.body.password),
-        })
-        const token = await getSignedToken(userCollection);
-        return SuccessResponse(res, "User created successfully", token,  201)
-  
+          const userCollection = await createUser(req)
+          return SuccessResponse(res, "User created successfully", userCollection,  201)
     } catch (e) {
-      console.log(e)
-      return next(new ErrorResponse(e.message,  500))
+          return next(new ErrorResponse(e.message,  500))
     }
   },
 
