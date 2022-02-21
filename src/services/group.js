@@ -248,6 +248,41 @@ async inviteToGroup(req) {
 
     }
   },
+
+  async groupReporting(req) {
+    try {
+ 
+      
+    const groupCollection = await group.findOne({
+       where:{
+           id:req.params.groupId
+       },  
+  
+        include: [{
+            model:user, 
+            attributes: ['id', 'name'],  
+            through: { attributes:["amountSaved", "role"],where: { role: "admin", userId:req.user.id } },
+           
+            // through: {attributes: ["amountSaved", "role"]}
+        }],
+  
+    });
+        if(groupCollection === null){
+          throw (new ErrorResponse(`group with the id of ${req.params.groupId} does not exist`, 404));
+
+        }
+        else{
+            return groupCollection
+        //   return SuccessResponse(res, "group retrieved successfully", groupCollection,  200)
+
+    } 
+    } 
+    catch (e) {
+        console.log(e)
+        throw (new ErrorResponse(e.message, 500));
+
+    }
+  },
 }
 
 // const { shuffleMembers } = require("../utils/randomGen");

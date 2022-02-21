@@ -9,7 +9,6 @@ const ErrorResponse = require('../utils/error');
 const {groupSchema} = require("../validators/group")
 const {inviteSchema} = require("../validators/invite")
 const {
-  
   addMember,
   joinGroup,
   getAGroup,
@@ -17,7 +16,8 @@ const {
   createGroup,
   updateGroup,
   deleteGroup,
-  inviteToGroup
+  inviteToGroup,
+  groupReporting
 } = require("../services/group");
 
 module.exports = {
@@ -43,35 +43,14 @@ module.exports = {
     // @access  Private
     async groupReporting(req, res, next) {
       try {
-   
-        
-      const groupCollection = await group.findOne({
-         where:{
-             id:req.params.groupId
-         },  
-    
-          include: [{
-              model:user, 
-              attributes: ['id', 'name'],  
-              through: { attributes:["amountSaved", "role"],where: { role: "admin", userId:req.user.id } },
-             
-              // through: {attributes: ["amountSaved", "role"]}
-          }],
-    
-      });
-          if(groupCollection === null){
-            return next(new ErrorResponse(`group with the id of ${req.params.groupId} does not exist`, 404));
-  
-          }
-          else{
+          const groupCollection = await groupReporting(req)
+          if(groupCollection){
             return SuccessResponse(res, "group retrieved successfully", groupCollection,  200)
-  
-      } 
+          }
       } 
       catch (e) {
           console.log(e)
           return next(new ErrorResponse(e.message, 500));
-  
       }
     },
     // @desc    Get a group
