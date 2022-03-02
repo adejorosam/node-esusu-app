@@ -4,7 +4,9 @@
   "description": "An esusu app",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server"
+    "start": "nodemon server",
+    "migrate": "node_modules/.bin/sequelize db:migrate"
+
   },
   "repository": {
     "type": "git",
